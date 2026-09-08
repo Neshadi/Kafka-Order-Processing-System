@@ -1,0 +1,39 @@
+version: "3.7"
+
+# Redpanda is a Kafka-API-compatible broker that ships with a built-in
+# Schema Registry, so we don't need to run separate Zookeeper / Kafka /
+# Schema-Registry containers. Your producer & consumer code talks to it
+# exactly like they would talk to real Apache Kafka.
+
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.4
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --overprovisioned
+      - --node-id=0
+      - --kafka-addr=PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:19092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:29092,OUTSIDE://localhost:19092
+      - --pandaproxy-addr=0.0.0.0:8082
+      - --advertise-pandaproxy-addr=localhost:8082
+      - --schema-registry-addr=0.0.0.0:8081
+    ports:
+      - "19092:19092"   # Kafka API (use this from your host machine)
+      - "8081:8081"     # Schema Registry
+      - "8082:8082"     # HTTP proxy
+      - "9644:9644"     # Admin API
+
+  console:
+    image: docker.redpanda.com/redpandadata/console:v2.7.2
+    container_name: redpanda-console
+    depends_on:
+      - redpanda
+    ports:
+      - "8080:8080"     # Web UI to browse topics/messages/schemas
+    environment:
+      KAFKA_BROKERS: redpanda:29092
+      KAFKA_SCHEMAREGISTRY_ENABLED: "true"
+      KAFKA_SCHEMAREGISTRY_URLS: http://redpanda:8081
