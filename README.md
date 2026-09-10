@@ -46,9 +46,19 @@ pip install -r requirements.txt
 Open 3 terminals (consumer first, then producer, then the DLQ viewer):
 
 ```bash
-cd consumer && source .venv/bin/activate && python consumer.py
-cd producer && source .venv/bin/activate && python producer.py
-cd consumer && source .venv/bin/activate && python dlq_viewer.py
+cd consumer  
+source .venv/bin/activate 
+python consumer.py
+
+
+cd producer 
+source .venv/bin/activate 
+python producer.py
+
+
+cd consumer
+source .venv/bin/activate 
+python dlq_viewer.py
 ```
 
 The producer sends one order per second. The consumer processes each
